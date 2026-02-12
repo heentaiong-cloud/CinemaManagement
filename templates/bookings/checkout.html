@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - Cinema Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="mb-4">Booking Confirmation</h2>
+
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                    <a href="{% url 'seat_selection' showtime.id %}" class="btn btn-sm btn-outline-danger mt-2">
+                        Select Seats Again
+                    </a>
+                </div>
+            {% endif %}
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Movie Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {% if showtime.movie.poster %}
+                                        <img src="{{ showtime.movie.poster.url }}" class="img-fluid rounded" alt="">
+                                    {% else %}
+                                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="height: 200px;">
+                                            <i class="fas fa-image fa-3x text-light"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-8">
+                                    <h6>{{ showtime.movie.title }}</h6>
+                                    <p><strong>Theater:</strong> {{ showtime.theater.name }}</p>
+                                    <p><strong>Date:</strong> {{ showtime.show_date|date:"F d, Y" }}</p>
+                                    <p><strong>Time:</strong> {{ showtime.show_time|time:"h:i A" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Selected Seats</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for seat in seats %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card">
+                                                    <div class="card-body text-center">
+                                                            <p class="mb-0"><strong>{{ seat.row }}{{ seat.number }}</strong></p>
+                                                            <small class="text-muted">
+                                                                {{ seat.get_seat_type_display|default:'Standard' }}
+                                                            </small>
+                                                            <p class="mb-0 mt-2"><strong>₱{{ showtime.ticket_price }}</strong></p>
+                                                        </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card sticky-top" style="top: 20px;">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Order Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <p class="mb-1">Number of Seats:</p>
+                                <p class="h6">{{ seats|length }}</p>
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-3">
+                                <p class="mb-1">Total Price:</p>
+                                <p class="h4 text-primary">₱{{ total_price }}</p>
+                            </div>
+
+                            <form method="post" action="">
+                                {% csrf_token %}
+                                <input type="hidden" name="seat_ids" value="{{ seat_ids }}">
+                                <button type="submit" class="btn btn-success w-100 btn-lg">
+                                    <i class="fas fa-check"></i> Confirm Booking
+                                </button>
+                            </form>
+
+                            <a href="{% url 'seat_selection' showtime.id %}" class="btn btn-link w-100 mt-2">
+                                ← Change Seats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

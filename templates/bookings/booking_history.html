@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - Cinema Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">My Bookings</h2>
+
+    {% if bookings %}
+        <div class="row">
+            {% for booking in bookings %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">{{ booking.showtime.movie.title }}</h5>
+                                <span class="status-badge {% if booking.status == 'confirmed' %}status-confirmed{% elif booking.status == 'pending' %}status-pending{% else %}status-cancelled{% endif %}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Booking ID:</strong> BOOKING-{{ booking.id }}</p>
+                            <p><strong>Theater:</strong> {{ booking.showtime.theater.name }}</p>
+                            <p><strong>Show Date & Time:</strong> {{ booking.showtime.show_date|date:"M d, Y" }} at {{ booking.showtime.show_time|time:"h:i A" }}</p>
+                            
+                            <p><strong>Seats:</strong> 
+                                {% for item in booking.items.all %}
+                                    {{ item.seat.row }}{{ item.seat.number }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                            
+                            <p><strong>Number of Seats:</strong> {{ booking.number_of_seats }}</p>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Total: ₱{{ booking.total_price }}</h5>
+                                <small class="text-muted">Booked on {{ booking.booking_date|date:"M d, Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info text-center py-5">
+            <i class="fas fa-inbox fa-3x mb-3"></i>
+            <h5>No bookings yet</h5>
+            <p class="mb-0">Start booking your favorite movies now!</p>
+            <a href="{% url 'movie_list' %}" class="btn btn-primary mt-3">Browse Movies</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

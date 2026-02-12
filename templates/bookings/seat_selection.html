@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Seats - Cinema Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Select Your Seats</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ showtime.movie.title }}</h5>
+                    <p class="card-text">
+                        {{ showtime.theater.name }} - {{ showtime.show_date|date:"F d, Y" }} at {{ showtime.show_time|time:"h:i A" }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Screen -->
+            <div class="text-center my-4">
+                <div class="seat-screen">
+                    <p>SCREEN</p>
+                </div>
+            </div>
+
+            <!-- Seats -->
+            <div class="seat-selection">
+                <form id="seatForm" method="get" action="{% url 'checkout' showtime.id %}">
+                    {% for row, seats in seats_by_row %}
+                        <div class="seat-row mb-2">
+                            <span class="row-label">{{ row }}</span>
+                            {% for seat in seats %}
+                                <label class="seat-label" title="{{ seat.row }}{{ seat.number }}">
+                                    <input
+                                        type="checkbox"
+                                        name="seats"
+                                        value="{{ seat.id }}"
+                                        class="seat-checkbox"
+                                        {% if seat.is_booked %}disabled{% endif %}
+                                    >
+                                    <span class="seat {% if seat.is_booked %}booked{% elif seat.seat_type == 'vip' %}vip{% elif seat.seat_type == 'premium' %}premium{% else %}standard{% endif %}">
+                                        <small>{{ seat.number }}</small>
+                                    </span>
+                                    <div class="seat-type mt-1 text-center small">
+                                        {% if seat.seat_type == 'vip' %}
+                                            <span class="badge status-badge" style="background:var(--seat-vip)">VIP</span>
+                                        {% elif seat.seat_type == 'premium' %}
+                                            <span class="badge status-badge" style="background:var(--seat-premium); color:#072117">PREM</span>
+                                        {% else %}
+                                            <span class="badge status-badge" style="background:var(--seat-standard)">STD</span>
+                                        {% endif %}
+                                    </div>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </form>
+            </div>
+
+            <!-- Legend -->
+            <div class="mt-4">
+              <small>Standard (₱250)</small>
+                <div class="seat-legend">
+                    <div class="legend-item">
+                        <span class="seat standard"></span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="seat premium"></span>
+                        <small>Premium (₱350)</small>
+                    </div>
+                    <div class="legend-item">
+                        <span class="seat vip"></span>
+                        <small>VIP (₱500)</small>
+                    </div>
+                    <div class="legend-item">
+                        <span class="seat booked"></span>
+                        <small>Booked</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title">Booking Summary</h5>
+                    
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>Selected Seats:</strong></p>
+                        <div id="selectedSeats" class="alert alert-info" style="display: none; min-height: auto;">
+                            <span id="seatList"></span>
+                        </div>
+                        <p class="text-muted" id="noSeatsMessage">No seats selected</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p><strong>Total Price:</strong></p>
+                        <p class="h5" id="totalPrice">₱0</p>
+                    </div>
+
+                    <button id="proceedBtn" type="button" class="btn btn-accent w-100" disabled onclick="proceedToCheckout()">
+                        <i class="fas fa-shopping-cart me-2"></i> Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .seat-selection {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .seat-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .row-label {
+        width: 30px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .seat-label {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .seat-label input[type="checkbox"] {
+        display: none;
+    }
+
+    .seat {
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        border: 2px solid #ddd;
+        font-size: 11px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .seat.standard {
+        background: #007bff;
+        color: white;
+        border-color: #0056b3;
+    }
+
+    .seat.premium {
+        background: #ffc107;
+        color: black;
+        border-color: #ff9800;
+    }
+
+    .seat.vip {
+        background: #dc3545;
+        color: white;
+        border-color: #c82333;
+    }
+
+    .seat.booked {
+        background: #6c757d;
+        color: white;
+        border-color: #5a6268;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .seat-label input[type="checkbox"]:checked + .seat {
+        transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    }
+
+    .seat-screen {
+        background: linear-gradient(180deg, #333 0%, #555 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+
+    .seat-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+</style>
+
+<script>
+    const seatCheckboxes = document.querySelectorAll('.seat-checkbox');
+    const selectedSeatsDiv = document.getElementById('selectedSeats');
+    const seatListSpan = document.getElementById('seatList');
+    const noSeatsMessage = document.getElementById('noSeatsMessage');
+    const totalPriceSpan = document.getElementById('totalPrice');
+    const proceedBtn = document.getElementById('proceedBtn');
+    const seatForm = document.getElementById('seatForm');
+
+    // Seat prices
+    const seatPrices = {
+        'standard': 250,
+        'premium': 350,
+        'vip': 500
+    };
+
+    seatCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBookingSummary);
+    });
+
+    function updateBookingSummary() {
+        const selectedSeats = Array.from(document.querySelectorAll('.seat-checkbox:checked'));
+        updateUI(selectedSeats);
+    }
+
+    function updateUI(selectedSeats) {
+        if (selectedSeats.length === 0) {
+            selectedSeatsDiv.style.display = 'none';
+            noSeatsMessage.style.display = 'block';
+            totalPriceSpan.textContent = '₱0';
+            proceedBtn.disabled = true;
+        } else {
+            noSeatsMessage.style.display = 'none';
+            selectedSeatsDiv.style.display = 'block';
+            
+            const seatLabels = selectedSeats.map(checkbox => {
+                const label = checkbox.closest('.seat-label');
+                const seatElement = label.querySelector('.seat');
+                return seatElement.textContent.trim();
+            });
+            
+            seatListSpan.textContent = seatLabels.join(', ');
+            
+            let total = 0;
+            selectedSeats.forEach(checkbox => {
+                const label = checkbox.closest('.seat-label');
+                const seatElement = label.querySelector('.seat');
+                const seatClass = seatElement.className.split(' ').find(c => c !== 'seat');
+                total += seatPrices[seatClass] || 250;
+            });
+            
+            totalPriceSpan.textContent = '₱' + total;
+            proceedBtn.disabled = false;
+        }
+    }
+
+    function proceedToCheckout() {
+        const selectedSeats = Array.from(document.querySelectorAll('.seat-checkbox:checked'))
+            .map(checkbox => checkbox.value)
+            .join(',');
+        
+        window.location.href = '{% url 'checkout' showtime.id %}?seats=' + selectedSeats;
+    }
+</script>
+{% endblock %}

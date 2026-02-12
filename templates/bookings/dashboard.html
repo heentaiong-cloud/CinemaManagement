@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Cinema Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Dashboard</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Total Bookings</h5>
+                    <h2 class="text-primary">{{ total_bookings }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Amount Spent</h5>
+                    <h2 class="text-success">₱{{ total_spent|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Member Since</h5>
+                    <h2 class="text-info">{{ user.date_joined|date:"M Y" }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <h4 class="mb-3">Recent Bookings</h4>
+            {% if recent_bookings %}
+                <div class="list-group">
+                    {% for booking in recent_bookings %}
+                        <a href="{% url 'booking_confirmation' booking.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ booking.showtime.movie.title }}</h6>
+                                    <p class="mb-1 text-muted">{{ booking.showtime.show_date|date:"M d, Y" }} at {{ booking.showtime.show_time|time:"h:i A" }}</p>
+                                    <small class="text-muted">{{ booking.number_of_seats }} seat(s) - {{ booking.showtime.theater.name }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="status-badge {% if booking.status == 'confirmed' %}status-confirmed{% elif booking.status == 'pending' %}status-pending{% else %}status-cancelled{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                    <p class="h6 mt-2">₱{{ booking.total_price }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'booking_history' %}" class="btn btn-outline-primary mt-3 w-100">View All Bookings</a>
+            {% else %}
+                <p class="text-muted">No bookings yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <h4 class="mb-3">Account Information</h4>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ user.get_full_name|default:"Not provided" }}</p>
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Member Since:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">Quick Links</h6>
+                    <a href="{% url 'movie_list' %}" class="btn btn-sm btn-outline-primary w-100 mb-2">Browse Movies</a>
+                    <a href="{% url 'booking_history' %}" class="btn btn-sm btn-outline-primary w-100 mb-2">My Bookings</a>
+                    {% if user.is_staff %}
+                        <a href="/admin/" class="btn btn-sm btn-outline-primary w-100 mb-2">Admin Panel</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

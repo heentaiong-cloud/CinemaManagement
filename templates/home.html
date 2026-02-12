@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Cinema Pro - Book Your Tickets{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4 text-white">Experience Cinema Magic</h1>
+                <p class="lead mb-4 text-light">Browse the latest movies, select your seats, and book your tickets in seconds. Enjoy the best cinema experience.</p>
+                {% if not user.is_authenticated %}
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Get Started</a>
+                        <a href="{% url 'movie_list' %}" class="btn btn-outline-light btn-lg">Browse Movies</a>
+                    </div>
+                {% else %}
+                    <a href="{% url 'movie_list' %}" class="btn btn-primary btn-lg">Browse Movies</a>
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Movies -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="mb-4 text-center">Featured Movies</h2>
+        <div class="row">
+            {% for movie in featured_movies %}
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card h-100 movie-card">
+                        {% if movie.poster %}
+                            <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+                        {% else %}
+                            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                                <i class="fas fa-image fa-3x text-light"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ movie.title }}</h5>
+                            <p class="card-text text-muted">{{ movie.genre }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="rating">
+                                    <i class="fas fa-star text-warning"></i> {{ movie.rating }}
+                                </div>
+                                <a href="{% url 'movie_detail' movie.id %}" class="btn btn-sm btn-primary">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">No movies available at the moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'movie_list' %}" class="btn btn-primary btn-lg">View All Movies</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="mb-4 text-center">Why Choose Cinema Pro?</h2>
+        <div class="row">
+            <div class="col-md-6 col-lg-3 mb-4 text-center">
+                <div class="feature-box">
+                    <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                    <h5>Easy Search</h5>
+                    <p>Find your favorite movies easily with our advanced search and filter options.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4 text-center">
+                <div class="feature-box">
+                    <i class="fas fa-chair fa-3x text-primary mb-3"></i>
+                    <h5>Seat Selection</h5>
+                    <p>Visually choose your seats and get the best viewing experience.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4 text-center">
+                <div class="feature-box">
+                    <i class="fas fa-credit-card fa-3x text-primary mb-3"></i>
+                    <h5>Secure Payment</h5>
+                    <p>Quick and secure booking process with instant confirmation.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4 text-center">
+                <div class="feature-box">
+                    <i class="fas fa-mobile-alt fa-3x text-primary mb-3"></i>
+                    <h5>Mobile Friendly</h5>
+                    <p>Book your tickets anytime, anywhere from any device.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Get featured movies from the first 4 movies
+    document.addEventListener('DOMContentLoaded', function() {
+        // This can be enhanced with AJAX to load featured movies dynamically
+    });
+</script>
+{% endblock %}
