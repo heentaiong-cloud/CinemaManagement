@@ -9,14 +9,10 @@ if [ -f /app/.venv/bin/activate ]; then
 fi
 
 # Ensure STATIC_ROOT exists (safety for WhiteNoise)
-python - <<'PY'
-from django.conf import settings
-import os
-
-static_root = getattr(settings, 'STATIC_ROOT', 'staticfiles')
-os.makedirs(static_root, exist_ok=True)
-print('Ensured STATIC_ROOT:', static_root)
-PY
+# Don't import Django settings here because DJANGO_SETTINGS_MODULE may not be set
+# in the build/release environment. Create the conventional staticfiles path.
+mkdir -p /app/staticfiles || true
+echo "Ensured STATIC_ROOT: /app/staticfiles"
 
 echo "Running migrations..."
 python manage.py migrate --noinput
