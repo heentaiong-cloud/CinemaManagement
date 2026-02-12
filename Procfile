@@ -1,1 +1,1 @@
-web: gunicorn cinema_project.wsgi --log-file -
+web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn cinema_project.wsgi --log-file -
