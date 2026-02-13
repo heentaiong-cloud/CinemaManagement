@@ -176,9 +176,13 @@ if USE_CLOUDINARY:
     # Cloudinary expects CLOUDINARY_URL or separate cloud_name/api_key/api_secret env vars
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     # Cloudinary returns absolute URLs; keep MEDIA_URL for urlpatterns compatibility
+    # Load CLOUDINARY_URL for the Cloudinary SDK, but do NOT set MEDIA_URL
+    # MEDIA_URL must remain a URL path ending with a slash for Django.
     CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
-    if CLOUDINARY_URL:
-        MEDIA_URL = CLOUDINARY_URL
+
+# Ensure MEDIA_URL ends with a slash to satisfy Django checks
+if not str(MEDIA_URL).endswith('/'):
+    MEDIA_URL = str(MEDIA_URL) + '/'
 
 # Authentication settings
 LOGIN_URL = 'login'
