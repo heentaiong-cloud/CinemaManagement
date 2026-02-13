@@ -25,8 +25,18 @@ except Exception:
     font = ImageFont.load_default()
 
 text = 'C'
-w, h = draw.textsize(text, font=font)
-draw.text(((W-w)/2, (H-h)/2), text, font=font, fill=fg)
+try:
+    # Pillow >=8.0 provides textbbox; use it when available
+    bbox = draw.textbbox((0, 0), text, font=font)
+    w = bbox[2] - bbox[0]
+    h = bbox[3] - bbox[1]
+except Exception:
+    try:
+        w, h = font.getsize(text)
+    except Exception:
+        w, h = 32, 32
+
+draw.text(((W - w) / 2, (H - h) / 2), text, font=font, fill=fg)
 
 # Save as .ico with multiple sizes
 img.save(OUT, format='ICO', sizes=[(64,64),(32,32),(16,16)])
