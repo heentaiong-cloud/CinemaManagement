@@ -8,6 +8,13 @@ The script will not overwrite an existing user.
 """
 import os
 import sys
+import pathlib
+
+# Ensure the project root is on sys.path so `cinema_project` can be imported
+# when this script is executed from different working directories during build.
+PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cinema_project.settings')
