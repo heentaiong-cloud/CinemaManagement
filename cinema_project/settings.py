@@ -19,6 +19,10 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 # Hosts
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',') if os.getenv('ALLOWED_HOSTS') else ['*']
 
+# Optionally use Cloudinary for media storage. Read this early so we don't
+# include Cloudinary apps in `INSTALLED_APPS` unless explicitly enabled.
+USE_CLOUDINARY = os.getenv('USE_CLOUDINARY', 'False').lower() in ('true','1','yes')
+
 
 # Application definition
 
@@ -35,9 +39,6 @@ INSTALLED_APPS = [
     'apps.bookings',
     # Optional storage backends
     'storages',
-    # Cloudinary (optional)
-    'cloudinary',
-    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -170,13 +171,14 @@ if USE_S3:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Optionally use Cloudinary for media storage. Set USE_CLOUDINARY=true
-USE_CLOUDINARY = os.getenv('USE_CLOUDINARY', 'False').lower() in ('true','1','yes')
+# (Cloudinary enabled earlier) If Cloudinary is enabled, configure storage
 if USE_CLOUDINARY:
     # Cloudinary expects CLOUDINARY_URL or separate cloud_name/api_key/api_secret env vars
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     # Cloudinary returns absolute URLs; keep MEDIA_URL for urlpatterns compatibility
-    MEDIA_URL = os.getenv('CLOUDINARY_URL', MEDIA_URL)
+    CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
+    if CLOUDINARY_URL:
+        MEDIA_URL = CLOUDINARY_URL
 
 # Authentication settings
 LOGIN_URL = 'login'
