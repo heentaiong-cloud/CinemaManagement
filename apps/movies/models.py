@@ -77,6 +77,20 @@ class Showtime(models.Model):
         self.available_seats = self.get_available_seats()
         self.save()
 
+    def save(self, *args, **kwargs):
+        """Auto-fill available_seats on create if not provided.
+
+        This helps the admin form where `available_seats` may be left empty.
+        """
+        # If creating and available_seats is falsy, initialize from theater total
+        if not self.pk and (self.available_seats is None or self.available_seats == 0):
+            try:
+                total = self.theater.total_seats
+            except Exception:
+                total = Seat.objects.filter(theater=self.theater).count()
+            self.available_seats = total
+        super().save(*args, **kwargs)
+
 
 class Seat(models.Model):
     """Seat model for each theater"""

@@ -1,3 +1,12 @@
+# CinemaSystem — Deployment notes
+
+Quick deployment notes for Railway:
+
+- To allow the app to serve uploaded media files from the container (small projects only), add the project variable `SERVE_MEDIA` with value `true` in Railway Project > Settings > Variables. The app will then serve `MEDIA_URL` from the container filesystem during runtime.
+- For production, prefer using an external object store (S3/GCS) — filesystem storage on containers is ephemeral.
+
+Admin auto-creation:
+- The release script runs `scripts/create_admin.py` during deploy; set `ADMIN_USERNAME`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` as shared variables in Railway to create the admin automatically on deploy.
 # Cinema Management System - Setup Instructions
 
 A complete, production-ready Cinema Management System built with Django, featuring user authentication, movie browsing, seat selection, and ticket booking.
