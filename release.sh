@@ -13,6 +13,9 @@ fi
 # in the build/release environment. Create the conventional staticfiles path.
 mkdir -p /app/staticfiles || true
 echo "Ensured STATIC_ROOT: /app/staticfiles"
+# Ensure MEDIA_ROOT exists so FileField uploads won't fail when saving files
+mkdir -p /app/media || true
+echo "Ensured MEDIA_ROOT: /app/media"
 
 echo "Running migrations..."
 python manage.py migrate --noinput
