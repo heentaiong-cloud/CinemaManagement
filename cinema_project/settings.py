@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     # Local apps
     'apps.movies',
     'apps.bookings',
+    # Optional storage backends
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -149,6 +151,16 @@ if USE_S3:
         MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
     else:
         MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
+
+    # Recommended defaults for public media files and caching
+    # Avoid deprecated ACL defaults
+    AWS_DEFAULT_ACL = None
+    # Disable querystring auth so files uploaded to public buckets are directly accessible
+    AWS_QUERYSTRING_AUTH = False
+    # Useful object parameters (cache control)
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/stable/ref/settings/#default-auto-field
