@@ -7,6 +7,21 @@ Quick deployment notes for Railway:
 
 Admin auto-creation:
 - The release script runs `scripts/create_admin.py` during deploy; set `ADMIN_USERNAME`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` as shared variables in Railway to create the admin automatically on deploy.
+
+S3 / Durable media storage (recommended)
+---------------------------------------
+For production you should use an object store (S3, DigitalOcean Spaces, GCS) so uploaded media persists across deploys. To enable S3-compatible storage:
+
+1. Set the following environment variables in Railway Project Settings > Variables:
+  - `USE_S3=true`
+  - `AWS_ACCESS_KEY_ID`
+  - `AWS_SECRET_ACCESS_KEY`
+  - `AWS_STORAGE_BUCKET_NAME`
+  - Optionally `AWS_S3_REGION_NAME` and `AWS_S3_CUSTOM_DOMAIN`
+
+2. The app uses `django-storages` and `boto3` (already added to `requirements.txt`). After setting env vars, redeploy — uploaded files will be stored in the configured bucket and served from the bucket URL.
+
+If you'd like, I can add example settings for Google Cloud Storage instead, or wire-up common patterns (private buckets + signed URLs, CloudFront/Cloud CDN), just tell me which provider you prefer.
 # Cinema Management System - Setup Instructions
 
 A complete, production-ready Cinema Management System built with Django, featuring user authentication, movie browsing, seat selection, and ticket booking.
