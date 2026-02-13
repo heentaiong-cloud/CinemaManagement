@@ -41,6 +41,13 @@ urlpatterns += [
     path('search/', MovieSearchView.as_view(), name='movie_search'),
 ]
 
+# Serve a top-level favicon.ico by redirecting to the static file
+from django.views.generic import RedirectView
+from django.conf import settings as dj_settings
+urlpatterns += [
+    path('favicon.ico', RedirectView.as_view(url=dj_settings.STATIC_URL + 'favicon.ico')),
+]
+
 # Serve media files in development. For small projects you can also enable
 # serving media in production by setting the SERVE_MEDIA env var to 'true'.
 if settings.DEBUG or os.getenv('SERVE_MEDIA', 'False').lower() in ('true', '1', 'yes'):

@@ -20,6 +20,13 @@ echo "Ensured MEDIA_ROOT: /app/media"
 echo "Running migrations..."
 python manage.py migrate --noinput
 
+echo "Generating favicon if missing..."
+if [ -f scripts/generate_favicon.py ]; then
+  python scripts/generate_favicon.py || echo "favicon generation failed (continuing)"
+else
+  echo "generate_favicon.py not found, skipping"
+fi
+
 echo "Collecting static files..."
 python manage.py collectstatic --noinput --clear
 
