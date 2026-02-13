@@ -4,6 +4,7 @@ URL configuration for cinema_project project.
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+import os
 from django.conf.urls.static import static
 from django.views.generic import View
 from django.shortcuts import render
@@ -40,7 +41,8 @@ urlpatterns += [
     path('search/', MovieSearchView.as_view(), name='movie_search'),
 ]
 
-# Serve media files in development
-if settings.DEBUG:
+# Serve media files in development. For small projects you can also enable
+# serving media in production by setting the SERVE_MEDIA env var to 'true'.
+if settings.DEBUG or os.getenv('SERVE_MEDIA', 'False').lower() in ('true', '1', 'yes'):
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
